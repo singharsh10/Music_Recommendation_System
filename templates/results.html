@@ -41,12 +41,12 @@
 			font-family: "Open Sans";
 			font-weight: 500;
 			color: white;
-			font-size: 28px;
+			font-size: 25px;
 			text-shadow: 0px 1px, 1px 0px, 1px 0px;
 			{#margin-left: 12vw;#}
 			letter-spacing: 2px;
 			text-align: left;
-			margin-top: 8px;
+			margin-top: 15px;
 			margin-left: 12px;
 		}
 
@@ -124,7 +124,8 @@
 {%  block body %}
 
 	 <h3 class="heading-recommend">
-		 Recommendations for {{ user_song }} by {{ user_artist }}
+		 Recommendations for <span style="color:#03e9f4">{{ user_song }}</span>
+		 by <span style="color: #03e9f4">{{ user_artist }}</span>
     </h3>
     <div class="container">
       	<div class="row">
