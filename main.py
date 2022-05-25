@@ -1,5 +1,4 @@
 import re
-import time
 import spotipy
 import pandas as pd
 from collections import defaultdict
@@ -16,15 +15,17 @@ spotify = spotipy.Spotify(
     auth_manager=SpotifyClientCredentials(client_id=spotify_client_id, client_secret=spotify_client_secret))
 
 
+# fetching the information regarding the track that user entered
 def fetch_track(song_name, song_artist):
     result = spotify.search(q='track: {} artist: {}'.format(song_name, song_artist), limit=1)
 
-    # cannot find song return None
+    # not able to find song (return None)
     if result['tracks']['items'] == []:
         return None
 
     song_id = result['tracks']['items'][0]['id']
 
+    # retrieving the user tracks features from spotify api
     track_info = spotify.audio_features(tracks=song_id)
     track_info = track_info[0]
 
@@ -49,6 +50,7 @@ def fetch_track(song_name, song_artist):
     return pd.DataFrame(track_data)
 
 
+# normalizing specific columns of spotify dataset to bring them down to range [0,1]
 def normalize(spotify_df, column):
     max_val = spotify_df[column].max()
     min_val = spotify_df[column].min()
@@ -58,13 +60,7 @@ def normalize(spotify_df, column):
                 max_val - min_val)
 
 
-# Normalising the value to bring them into range [0, 1]
-# def normalisation(spotify_df):
-#     spotify_df = normalize(spotify_df, 'tempo')
-#
-#     return spotify_df
-
-
+# create TF-IDF features for genre column of the spotify dataset
 def create_tf_idf(spotify_df):
     tfidf = TfidfVectorizer()
     tfidf_matrix = tfidf.fit_transform(spotify_df['genres'].apply(lambda x: " ".join(x)))
@@ -75,6 +71,7 @@ def create_tf_idf(spotify_df):
     return genre_df
 
 
+# one hot encoding the release year column of the spotify dataset
 def one_hot_encoding(spotify_df):
     spotify_df['release_year'] = spotify_df['release_year'].apply(lambda x: int(x / 10))
     ohe = pd.get_dummies(spotify_df['release_year'])
@@ -85,7 +82,7 @@ def one_hot_encoding(spotify_df):
     return ohe
 
 
-# creating the final useful set of features
+# creating the final useful set of features which will be used to compute similarity
 def create_feature_set(spotify_df):
     genre_tf_idf = create_tf_idf(spotify_df)
     year_ohe = one_hot_encoding(spotify_df)
@@ -96,19 +93,20 @@ def create_feature_set(spotify_df):
     spotify_df[feature_set_cols] *= 0.2
     year_ohe *= 0.1
 
-    # putting inplace=True sets columns names to numeric numbers
+    # concatenating final set of features into complete_feature_set
     complete_feature_set = pd.concat([spotify_df[feature_set_cols], genre_tf_idf, year_ohe], axis=1)
-    complete_feature_set['name'] = spotify_df['name']
-    complete_feature_set['artists'] = spotify_df['artists']
+    # track id will be used later on to find information regarding tracks that have to be recommended to the user
     complete_feature_set['id'] = spotify_df['id']
 
     return complete_feature_set
 
 
+# finding similarity score between user song and spotify dataset songs
 def generate_recommendations(spotify_df, user_track_df):
-    spotify_df['sim'] = cosine_similarity(spotify_df.drop(['name', 'artists', 'id'], axis=1),
-                                          user_track_df.drop(['name', 'artists', 'id'], axis=1))
+    spotify_df['sim'] = cosine_similarity(spotify_df.drop(['id'], axis=1),
+                                          user_track_df.drop(['id'], axis=1))
 
+    # sorting the songs based on similarity score
     spotify_df.sort_values(by='sim', ascending=False, inplace=True, kind="mergesort")
     spotify_df.reset_index(drop=True, inplace=True)
 
@@ -121,35 +119,49 @@ def generate_recommendations(spotify_df, user_track_df):
 
 
 def begin(song_title, song_artist):
-    tracks_df = pd.read_csv('tracks_with_genres_v3.csv')
-    tracks_df.rename({'consolidates_genre_lists': 'genres'}, axis=1, inplace=True)
-    tracks_df['genres'] = tracks_df['genres'].apply(lambda x: re.findall(r"'([^']*)'", str(x)))
-
     user_track = fetch_track(song_title, song_artist)
 
     if user_track is None:
         return None, None, None, None, None, None
 
     else:
+        """ 
+            Reading in the csv file and converting the genres column of the spotify dataset from string to a 
+            list using regex expressions and apply function and replacing spaces in user_tracks genres column
+            with underscore 
+            ( eg: hip hop ---> hip_hop )
+        """
+
+        tracks_df = pd.read_csv('tracks_with_genres_v3.csv')
+        tracks_df.rename({'consolidates_genre_lists': 'genres'}, axis=1, inplace=True)
+        tracks_df['genres'] = tracks_df['genres'].apply(lambda x: re.findall(r"'([^']*)'", str(x)))
+
         user_track['genres'] = user_track['genres'].apply(
             lambda x: [re.sub(' ', '_', i) for i in re.findall(r"'([^']*)'", str(x))])
         song_title = user_track.at[0, 'name']
         song_artist = user_track.at[0, 'artists']
         song_id = user_track.at[0, 'id']
 
+        # dropping columns that are not present in user_tracks and not in tracks_df and vice versa
         user_track.drop(['track_href', 'analysis_url', 'uri', 'type'], inplace=True, axis=1)
         tracks_df.drop(['explicit', 'release_date'], inplace=True, axis=1)
+
+        """
+            merging user_tracks and tracks_df(spotify dataset) because i need to create a TF-IDF matrix 
+            for all different genres available 
+        """
         tracks_df = pd.concat([user_track, tracks_df], ignore_index=True)
 
+        # removing duplicate songs from the dataset
         tracks_df.drop_duplicates(subset=['artists', 'name'], keep='first', inplace=True, ignore_index=True)
-        # although less probability but it can be possible that 2 tracks with same id as this dataset has different id's for some song
         tracks_df.drop_duplicates(subset=['id'], keep='first', inplace=True, ignore_index=True)
 
+        # normalizing popularity and tempo column of the spotify dataset to range [0,1]
         tracks_df['popularity'] /= 100
         normalize(tracks_df, 'tempo')
         complete_feature_set = create_feature_set(tracks_df)
 
-        """ use id to compare rather than artist and name """
+        # separating user track and remaining spotify dataset songs as we need to compute similarity between them
         final_spotify_feature_set = complete_feature_set[complete_feature_set['id'] != song_id]
         final_user_track_feature = complete_feature_set[complete_feature_set['id'] == song_id]
         tracks_recommend = generate_recommendations(final_spotify_feature_set.copy(), final_user_track_feature)
@@ -159,12 +171,14 @@ def begin(song_title, song_artist):
         track_url = []
         album_image = []
 
+        # returning the information for a given track using its id
         def recommend(track_id):
             return spotify.track(track_id=track_id)
 
         track_ids = [tracks_recommend.at[i, 'id']
                      for i in range(len(tracks_recommend))]
 
+        # retrieving the information for tracks that need to be recommended
         with Pool(5) as pool:
             for res in pool.map(recommend, track_ids):
                 track_url.append(res['external_urls'])
@@ -172,21 +186,4 @@ def begin(song_title, song_artist):
                 track_artist.append(res['artists'][0]['name'])
                 album_image.append(res['album']['images'][0]['url'])
 
-        # for i in range(len(tracks_recommend)):
-        #     track_id = tracks_recommend.at[i, 'id']
-        #     # call to spotify api
-        #     res = spotify.track(track_id=track_id)
-        #     track_url.append(res['external_urls'])
-        #     track_name.append(res['name'])
-        #     album_image.append(res['album']['images'][0]['url'])
-        #     # track_preview.append(res['album']['preview_url'])
-        # # for i in range(len(track_name)):
-        #     print(track_name[i], end=" ")
-        #     print(track_url[i]['spotify'])
-
         return track_name, track_artist, track_url, album_image, song_title, song_artist
-
-# start = time.time()
-# begin("Heartless", "Weeknd")
-# end = time.time()
-# print("Time ", end-start)
