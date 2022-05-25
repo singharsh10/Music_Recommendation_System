@@ -111,9 +111,10 @@ def generate_recommendations(spotify_df, user_track_df):
     return spotify_df.head(10)
 
 
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
+"""
+    begin function gets passed on to app.py and executes all the above function and finally returns
+    a list of data to be displayed onto results.html 
+"""
 
 
 def begin(song_title, song_artist):
@@ -136,9 +137,9 @@ def begin(song_title, song_artist):
 
         user_track['genres'] = user_track['genres'].apply(
             lambda x: [re.sub(' ', '_', i) for i in re.findall(r"'([^']*)'", str(x))])
-        song_title = user_track.at[0, 'name']
-        song_artist = user_track.at[0, 'artists']
-        song_id = user_track.at[0, 'id']
+        user_song_name = user_track.at[0, 'name']
+        user_song_artist = user_track.at[0, 'artists']
+        user_song_id = user_track.at[0, 'id']
 
         # dropping columns that are not present in user_tracks and not in tracks_df and vice versa
         user_track.drop(['track_href', 'analysis_url', 'uri', 'type'], inplace=True, axis=1)
@@ -160,8 +161,8 @@ def begin(song_title, song_artist):
         complete_feature_set = create_feature_set(tracks_df)
 
         # separating user track and remaining spotify dataset songs as we need to compute similarity between them
-        final_spotify_feature_set = complete_feature_set[complete_feature_set['id'] != song_id]
-        final_user_track_feature = complete_feature_set[complete_feature_set['id'] == song_id]
+        final_spotify_feature_set = complete_feature_set[complete_feature_set['id'] != user_song_id]
+        final_user_track_feature = complete_feature_set[complete_feature_set['id'] == user_song_id]
         tracks_recommend = generate_recommendations(final_spotify_feature_set.copy(), final_user_track_feature)
 
         track_name = []
@@ -184,4 +185,4 @@ def begin(song_title, song_artist):
                 track_artist.append(res['artists'][0]['name'])
                 album_image.append(res['album']['images'][0]['url'])
 
-        return track_name, track_artist, track_url, album_image, song_title, song_artist
+        return track_name, track_artist, track_url, album_image, user_song_name, user_song_artist
