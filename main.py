@@ -33,18 +33,16 @@ def fetch_track(song_name, song_artist):
     for key, value in track_info.items():
         track_data[key] = value
 
-    track_data['popularity'] = result['tracks']['items'][0]['popularity']
-    track_data['duration_min'] = track_info['duration_ms'] / (1000 * 60)
-
     artist_id = result['tracks']['items'][0]['album']['artists'][0]['id']
 
     artist_info = spotify.artist(artist_id=artist_id)
     artist_genres = artist_info['genres']
     track_data['genres'] = [artist_genres]
-
     track_data['artists'] = artist_info['name']
     track_data['name'] = result['tracks']['items'][0]['name']
     track_data['release_year'] = result['tracks']['items'][0]['album']['release_date']
+    track_data['popularity'] = result['tracks']['items'][0]['popularity']
+    track_data['duration_min'] = track_info['duration_ms'] / (1000 * 60)
     track_data['release_year'] = int(track_data['release_year'][:4])
 
     return pd.DataFrame(track_data)
