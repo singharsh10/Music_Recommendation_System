@@ -1,6 +1,7 @@
 html {
   height: 100%;
 }
+
 body {
   margin:0;
   padding:0;
@@ -43,6 +44,7 @@ body {
   outline: none;
   background: transparent;
 }
+
 .track_form .track_details label {
   position: absolute;
   top:0;
@@ -165,12 +167,14 @@ body {
     bottom: 100%;
   }
 }
+
 .btn {
   color: #03e9f4;
   text-transform: uppercase;
   transition: .5s;
   border-color: #03e9f4;
 }
+
 .btn:hover {
   background: #03e9f4;
   color: #fff;
