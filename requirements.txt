@@ -1,0 +1,4 @@
+Flask==2.1.2
+pandas==1.4.2
+scikit_learn==1.1.1
+spotipy==2.19.0
