@@ -1,15 +1,18 @@
 import re
+import os
 import spotipy
 import pandas as pd
+from dotenv import load_dotenv
 from collections import defaultdict
 from spotipy.oauth2 import SpotifyClientCredentials
 from multiprocessing.pool import ThreadPool as Pool
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+load_dotenv()
 
-spotify_client_id = '5e21e93ba056426dbbdfc20981dc2ffb'
-spotify_client_secret = '1fd1e8c5478043c89cd489c595879645'
+spotify_client_id = os.getenv('CLIENT_ID')
+spotify_client_secret = os.getenv('CLIENT_SECRET')
 
 spotify = spotipy.Spotify(
     auth_manager=SpotifyClientCredentials(client_id=spotify_client_id, client_secret=spotify_client_secret))
