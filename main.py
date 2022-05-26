@@ -86,7 +86,7 @@ def create_feature_set(spotify_df):
     year_ohe = one_hot_encoding(spotify_df)
 
     feature_set_cols = ['tempo', 'valence', 'energy', 'danceability', 'acousticness', 'speechiness',
-                        'popularity']
+                        'popularity', 'instrumentalness']
 
     spotify_df[feature_set_cols] *= 0.2
     year_ohe *= 0.1
@@ -126,12 +126,12 @@ def begin(song_title, song_artist):
     else:
         """ 
             Reading in the csv file and converting the genres column of the spotify dataset from string to a 
-            list using regex expressions and apply function and replacing spaces in user_tracks genres column
+            list using regex expressions. Replacing spaces in user_tracks genres column
             with underscore 
             ( eg: hip hop ---> hip_hop )
         """
 
-        tracks_df = pd.read_csv('tracks_with_genres_v3.csv')
+        tracks_df = pd.read_csv('tracks_with_genres_v4.csv')
         tracks_df.rename({'consolidates_genre_lists': 'genres'}, axis=1, inplace=True)
         tracks_df['genres'] = tracks_df['genres'].apply(lambda x: re.findall(r"'([^']*)'", str(x)))
 
@@ -141,7 +141,7 @@ def begin(song_title, song_artist):
         user_song_artist = user_track.at[0, 'artists']
         user_song_id = user_track.at[0, 'id']
 
-        # dropping columns that are not present in user_tracks and not in tracks_df and vice versa
+        # dropping columns that are present in user_tracks but not in tracks_df and vice versa
         user_track.drop(['track_href', 'analysis_url', 'uri', 'type'], inplace=True, axis=1)
         tracks_df.drop(['explicit', 'release_date'], inplace=True, axis=1)
 
@@ -177,7 +177,7 @@ def begin(song_title, song_artist):
         track_ids = [tracks_recommend.at[i, 'id']
                      for i in range(len(tracks_recommend))]
 
-        # retrieving the information for tracks that need to be recommended
+        # retrieving information for recommended tracks
         with Pool(5) as pool:
             for res in pool.map(recommend, track_ids):
                 track_url.append(res['external_urls'])
