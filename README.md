@@ -39,9 +39,9 @@ in the dataset.
   between them. A simple visualization and the 
   formula can be found below.
 
-  ![img.png](img.png)
+  ![img.png](static/img.png)
 
-  ![img_1.png](img_1.png)
+  ![img_1.png](static/img_1.png)
 
 * #### Built with
     `Python HTML CSS JavaScript`
@@ -72,7 +72,7 @@ these simple example steps.
 ### Usage
 
 Visit the [website](https://music-recommendation-alucard.herokuapp.com/)
-![img_3.png](img_3.png)
+![img_3.png](static/img_3.png)
 
 Enter name of the song and song artist. Make sure you entered the
 details correctly.
@@ -82,13 +82,13 @@ details correctly.
 order given on spotify as the API won't be able to find the song if 
 you enter it a different order. An example has been shown below
 
-![img_6.png](img_6.png)
+![img_6.png](static/img_6.png)
 
 Fill the track artist field like this
 `Nicky Romero Krewella`
 
 After this press the recommend button.
-![img_5.png](img_5.png)
+![img_5.png](static/img_5.png)
 
 To listen to these songs just click on them and you will be 
 redirected to spotify.
