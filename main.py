@@ -149,8 +149,8 @@ def begin(song_title, song_artist):
         tracks_df.drop(['explicit', 'release_date'], inplace=True, axis=1)
 
         """
-            merging user_tracks and tracks_df(spotify dataset) because i need to create a TF-IDF matrix 
-            for all different genres available 
+            merging user_tracks and tracks_df(spotify dataset) because i need to create feature matrix
+            later on which will help us to compute similarity
         """
         tracks_df = pd.concat([user_track, tracks_df], ignore_index=True)
 
@@ -180,7 +180,8 @@ def begin(song_title, song_artist):
         track_ids = [tracks_recommend.at[i, 'id']
                      for i in range(len(tracks_recommend))]
 
-        # retrieving information for recommended tracks
+        # retrieving information for recommended tracks and using multiprocessing library
+        # to run API requests in parallel
         with Pool(5) as pool:
             for res in pool.map(recommend, track_ids):
                 track_url.append(res['external_urls'])
