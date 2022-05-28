@@ -15,7 +15,7 @@
 ----------------------
 ### About the project
 
-This is web application that suggests 10 songs similar 
+This is a web application that suggests 10 songs similar 
 to the song chosen by the user. The recommendations
 are generated from around 6000 songs available
 in the dataset.
@@ -51,7 +51,7 @@ in the dataset.
 
 * #### Prerequisites
   * Python 3.10 or higher
-  * Spotify Client Id and Spotify Client Secret
+  * Flask
   
 * #### Installation  
    To get a local copy up and running follow 
@@ -63,7 +63,8 @@ these simple example steps.
   2. Install requirements
     
      `pip install -r requirements.txt`
-  3. Enter the spotify client_id and client_secret in .env file
+  3. Enter the spotify client_id and client_secret in .env file.
+     If you don't have one, follow [this](https://cran.r-project.org/web/packages/spotidy/vignettes/Connecting-with-the-Spotify-API.html).
   4. Start Flask server
     
      `python app.py`
@@ -71,7 +72,8 @@ these simple example steps.
 -----------------------
 ### Usage
 
-Visit the [website](https://music-recommendation-alucard.herokuapp.com/)
+#### Visit the [website](https://music-recommendation-alucard.herokuapp.com/)
+
 ![img_3.png](static/img_3.png)
 
 Enter name of the song and song artist. Make sure you entered the
