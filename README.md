@@ -60,12 +60,17 @@ these simple example steps.
   1. Clone the repo
 
      `git clone https://github.com/singharsh10/Music_Recommendation_System.git`
-  2. Install requirements
+  2. Creating virtual environment
+      
+     `pip install virtualenv`
+  
+      `virtualenv my_name`
+  4. Install requirements
     
      `pip install -r requirements.txt`
-  3. Enter the spotify client_id and client_secret in .env file.
+  5. Enter the spotify client_id and client_secret in .env file.
      If you don't have one, follow [this](https://cran.r-project.org/web/packages/spotidy/vignettes/Connecting-with-the-Spotify-API.html).
-  4. Start Flask server
+  6. Start Flask server
     
      `python app.py`
   
