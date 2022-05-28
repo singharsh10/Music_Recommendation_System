@@ -79,7 +79,7 @@ these simple example steps.
 
 #### Visit the [website](https://music-recommendation-alucard.herokuapp.com/)
 
-![img_3.png](static/img_3.png)
+![img.png](static/home.png)
 
 Enter name of the song and song artist. Make sure you entered the
 details correctly.
@@ -95,7 +95,7 @@ Fill the track artist field like this
 `Nicky Romero Krewella`
 
 After this press the recommend button.
-![img_5.png](static/img_5.png)
+![img_1.png](static/result.png)
 
 To listen to these songs just click on them and you will be 
 redirected to spotify.
