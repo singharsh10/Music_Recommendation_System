@@ -1,6 +1,10 @@
 # Music Recommendation System
 
+
 ------------------------------
+
+### Visit the [website](https://music-recommendation-alucard.herokuapp.com/)
+
 ### Table of Contents:
 #### About the project
 
@@ -77,8 +81,6 @@ these simple example steps.
 -----------------------
 ### Usage
 
-#### Visit the [website](https://music-recommendation-alucard.herokuapp.com/)
-
 ![img.png](static/home.png)
 
 Enter name of the song and song artist. Make sure you entered the
@@ -98,4 +100,6 @@ After this press the recommend button.
 ![img_1.png](static/result.png)
 
 To listen to these songs just click on them and you will be 
-redirected to spotify.
+redirected to spotify web player.
+ 
+For more details refer the PPT in the repo.
